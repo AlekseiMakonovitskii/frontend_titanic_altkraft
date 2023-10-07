@@ -1,0 +1,166 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+
+  background: whitesmoke;
+  padding: 1rem;
+  font-size: 1.2rem;
+  cursor: default;
+}
+
+.main {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.error {
+  position: absolute;
+  top: 50%;
+}
+
+/* Header */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  background: white;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  min-width: 350px;
+  max-width: 100%;
+}
+
+/* Search */
+
+.search-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .5rem;
+  min-width: 330px;
+  height: 50px;
+  background: whitesmoke;
+  border-radius: 1rem;
+  padding: .5rem;
+  font-size: 1.2rem;
+}
+
+.search-input{
+  height: 50px; 
+  width: 100%;
+  border: none;
+  outline: none;
+  border-radius: 1rem;
+  background: transparent;
+  padding: .5rem 0;
+  font-size: 1.2rem;
+}
+
+.search-input:focus + .clear-btn {
+  fill: black;
+ 
+}
+
+.clear-btn {
+  fill: gray;
+  cursor: pointer;
+ 
+}
+
+.clear-btn:hover {
+  fill: black;
+}
+
+/* Table */
+table {
+  width: 100%;
+
+
+ 
+}
+
+th {
+  text-align: left;
+
+  
+
+}
+
+th, td {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  line-height: 1.5;
+  border-radius: 1rem;
+  background: white;
+  height: 50px;
+  padding: .5rem;
+}
+
+
+
+td {
+  min-height: 100px;
+}
+
+.footer {
+  display: flex;
+  height: 3rem;
+  justify-content: center;
+  font-size: 1.5rem;
+  padding: 1rem 0;
+}
+
+.loader {
+  width: 100%;
+  display: none;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  gap: .5rem
+}
+
+.dot {
+  width: 15px;
+  height: 15px;
+  background-color: gray;
+  border-radius: 50%;
+  animation: bounce var(--animation-duration) infinite alternate; 
+}
+
+.dot:nth-child(1) {
+  animation: bounce .3s infinite alternate; 
+}
+
+.dot:nth-child(2) {
+  animation: bounce .6s infinite alternate; 
+}
+
+.dot:nth-child(3) {
+  animation: bounce .9s infinite alternate; 
+}
+
+.dot:nth-child(4) {
+  animation: bounce 1.2s infinite alternate; 
+}
+
+.dot:nth-child(5) {
+  animation: bounce 1.5s infinite alternate; 
+}
+ 
+
+@keyframes bounce {
+  to {
+      transform: translateY(10px);
+  }
+}
