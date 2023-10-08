@@ -27,7 +27,9 @@ const fetchData = async () => {
     globalState = data;
     filteredState = globalState;
     renderUI();
-  } catch (error) {}
+  } catch (error) {
+    renderError('Something went wrong');
+  }
 };
 
 // render
@@ -135,7 +137,7 @@ const search = e => {
   });
 
   if (newState.length === 0) {
-    renderError('Found nothing')
+    renderError('Nothing found')
   }
 
   updateState(newState);
