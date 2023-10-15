@@ -3,7 +3,8 @@ const apiUrl =
   'https://raw.githubusercontent.com/altkraft/for-applicants/master/frontend/titanic/passengers.json';
 const itemsContainer = document.querySelector('.items-container');
 const footer = document.querySelector('.footer');
-const loader = document.querySelector('.loader');
+const footerLoader = document.querySelector('.loaderFooter');
+const loaderMain = document.querySelector('.loaderMain');
 const searchInput = document.querySelector('.search-input');
 const form = document.querySelector('.form');
 const clearBtn = document.querySelector('.clear-btn');
@@ -15,9 +16,12 @@ let globalState = [];
 let filteredState = [];
 let renderState = [];
 
-// index counter
+// counters
 const countValue = 16;
+const countFromValue = 0;
+let fromIndex = countFromValue;
 let toIndex = countValue;
+let renderedItems = 0;
 
 // fetch data
 const fetchData = async () => {
@@ -26,7 +30,10 @@ const fetchData = async () => {
     const data = await res.json();
     globalState = data;
     filteredState = globalState;
-    renderUI();
+    setTimeout(() => {
+      hideLoader(loaderMain);
+      renderUI();
+    }, 500);
   } catch (error) {
     renderError('Something went wrong');
   }
@@ -34,9 +41,8 @@ const fetchData = async () => {
 
 // render
 const renderUI = () => {
-  itemsContainer.innerHTML = '';
   footerError.innerHTML = '';
-  const currentRender = filteredState.slice(0, toIndex);
+  const currentRender = filteredState.slice(fromIndex, toIndex);
   renderState = currentRender;
 
   renderState.forEach(el => {
@@ -57,23 +63,38 @@ const renderUI = () => {
 
     itemsContainer.insertAdjacentHTML('beforeend', html);
   });
+
+  renderedItems = itemsContainer.children.length;
 };
 
-const renderError = (error) => {
+const renderError = error => {
   const html = `
     <h1>${error}</h1>
-  `
+  `;
   errorSection.innerHTML = html;
-}
+};
 
 const removeError = () => {
   errorSection.innerHTML = '';
-}
+};
+
+const clearContainer = () => {
+  itemsContainer.innerHTML = '';
+};
+
+const showLoader = loader => {
+  loader.style.display = 'flex';
+};
+
+const hideLoader = loader => {
+  loader.style.display = 'none';
+};
 
 // lazy load
 const lazyLoad = () => {
   setTimeout(() => {
     toIndex += countValue;
+    fromIndex += countValue;
     renderUI();
   }, 500);
 };
@@ -81,15 +102,15 @@ const lazyLoad = () => {
 const observer = new IntersectionObserver(entries => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      if (renderState.length < filteredState.length) {
+      if (renderedItems < filteredState.length) {
         lazyLoad();
-        loader.style.display = 'flex';
+        showLoader(footerLoader);
         return;
       }
 
-      footerError.innerHTML = 'No more data'
+      footerError.innerHTML = 'No more data';
     } else {
-      loader.style.display = 'none';
+      hideLoader(footerLoader);
     }
   });
 });
@@ -100,8 +121,14 @@ observer.observe(footer);
 const updateState = newState => {
   filteredState = newState;
   toIndex = countValue;
+  fromIndex = countFromValue;
+  resetRenderedItems();
   renderUI();
 };
+
+const resetRenderedItems = () => {
+  renderedItems = 0;
+}
 
 // search
 const search = e => {
@@ -115,14 +142,20 @@ const search = e => {
     const hasName = name.toLowerCase().includes(value);
     const ageFilter = Math.floor(age).toString();
     const survivedFilter = survived ? 'survived' : 'not survived';
-  
+    const isGender = gender.includes(value);
+    const isNotSurvived = survivedFilter.includes(value);
+ 
     if (hasName) {
       newState.push(passenger);
     }
 
-    if (value === gender) {
-      const filtered = globalState.filter(el => el.gender === value);
-      newState.push(...filtered);
+    if (isGender) {
+      if (value === 'male') {
+        const filtered = globalState.filter(el => el.gender === value);
+        newState.push(...filtered);
+      }
+
+      newState.push(passenger);
     }
 
     if (value === ageFilter) {
@@ -130,31 +163,52 @@ const search = e => {
       newState.push(...filtered);
     }
 
-    if (value === survivedFilter) {
-      const filtered = globalState.filter(el => el.survived === survived);
-      newState.push(...filtered);
+    if (isNotSurvived) {
+      if (value === 'survived') {
+        const filtered = globalState.filter(el => el.survived === true);
+        newState.push(...filtered);
+      }
+
+      newState.push(passenger);
     }
   });
 
   if (newState.length === 0) {
-    renderError('Nothing found')
+    renderError('Nothing found');
   }
 
+  clearContainer();
   updateState(newState);
 };
 
 const clearInput = () => {
   searchInput.value = '';
+  clearContainer();
   removeError();
   updateState(globalState);
+};
+
+// debounce 
+const debounce = (callback, delay = 1000) => {
+  let timeout = null;
+
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      callback(...args);
+    }, delay)
+  }
 }
 
+const debouncedSearch = debounce(search, 500)
+
 // events
-searchInput.addEventListener('input', search);
+searchInput.addEventListener('input', debouncedSearch);
 form.addEventListener('submit', e => {
   e.preventDefault();
   return;
 });
+
 clearBtn.addEventListener('click', clearInput);
 
 // init
